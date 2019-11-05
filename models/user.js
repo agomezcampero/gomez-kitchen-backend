@@ -58,7 +58,16 @@ function validateSchemaForPasswordChange(user){
   return Joi.validate(user,schema)
 }
 
+function validateSchemaForAuth(user){
+  const schema = {
+    email: Joi.string().min(3).max(255).required().email(),
+    password: Joi.string().min(6).max(50).required() 
+  }
+  return Joi.validate(user,schema)
+}
+
 module.exports.User = User
 module.exports.validate = validateSchema
 module.exports.validateForUpdate = validateSchemaForUpdate
 module.exports.validateForPasswordChange = validateSchemaForPasswordChange
+module.exports.validateForAuth = validateSchemaForAuth
