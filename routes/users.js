@@ -1,4 +1,4 @@
-const { User, validate } = require('../models/user')
+const { User, validate, validateForUpdate } = require('../models/user')
 const express = require('express')
 const router = express.Router()
 const bcrypt = require('bcrypt')
@@ -39,6 +39,17 @@ router.get('/other/:id', [auth, validateObjectId], async (req, res) => {
 
 router.get('/me', [auth], async (req, res) => {
   const user = await User.findById(req.user)
+  res.send(_.pick(user, ['_id', 'email', 'name']))
+})
+
+router.put('/me', [auth, validateInput(validateForUpdate)], async (req, res) => {
+  let user = await User.findById(req.user)
+
+  user.name = req.body.name || user.name
+  user.email = req.body.email || user.email
+
+  user.save()
+
   res.send(_.pick(user, ['_id', 'email', 'name']))
 })
 

@@ -195,7 +195,6 @@ describe('/api/users', () => {
   describe('GET /me', () => {
     let user
     let token
-    let id
 
     const exec = () => {
       return request(server)
@@ -237,6 +236,103 @@ describe('/api/users', () => {
       expect(res.body.email).toBe('email@test.com')
 
     })
+  })
+
+  describe('PUT /me', () => {
+    let user
+    let token
+    let name
+    let email
+    let payload
+
+    const exec = () => {
+      return request(server)
+        .put('/api/users/me')
+        .set('x-auth-token', token)
+        .send(payload)
+    }
+
+    beforeEach(async () =>{
+      user = new User ({
+        name: 'name1',
+        email: 'email1@test.com',
+        password: '12345678'
+      })
+      await user.save()
+      token = user.generateAuthToken()
+      name = 'name2'
+      email = 'email2@test.com'
+      payload = {name, email}
+    })
+
+    it('should return 401 if user is not logged in', async () => {
+      token = ''
+
+      const res = await exec()
+
+      expect(res.status).toBe(401)
+    })
+
+    it('should return 400 if name has less than 3 characters', async () => {
+      name = '12'
+      payload = { name, email }
+
+      const res = await exec()
+
+      expect(res.status).toBe(400)
+    })
+
+    it('should return 400 if email is invalid', async () => {
+      email = '12345'
+      payload = { name, email }
+
+      const res = await exec()
+
+      expect(res.status).toBe(400)
+    })
+
+    it('should return 200 if request is valid', async () => {
+      const res = await exec()
+
+      expect(res.status).toBe(200)
+    })
+
+    it('should only update email if only valid email is sent', async () => {
+      payload = { email }
+      await exec()
+
+      user = await User.findOne({ email: 'email2@test.com' })
+
+      expect(user).not.toBeNull()
+      expect(user.name).toBe('name1')
+    })
+
+    it('should only update name if only valid name is sent', async () => {
+      payload = { name }
+      await exec()
+
+      user = await User.findOne({ email: 'email1@test.com' })
+
+      expect(user).not.toBeNull()
+      expect(user.name).toBe('name2')
+    })
+
+    it('should update name and email if both are valid', async () => {
+      await exec()
+
+      user = await User.findOne({ email: 'email2@test.com' })
+
+      expect(user).not.toBeNull()
+      expect(user.name).toBe('name2')
+    })
+
+    it('should return the user with update name and email if valid', async () => {
+      const res = await exec()
+
+      expect(res.body.name).toBe('name2')
+      expect(res.body.email).toBe('email2@test.com')
+    })
+
   })
 
 

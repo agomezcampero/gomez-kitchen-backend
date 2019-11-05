@@ -42,5 +42,14 @@ function validateSchema(user){
   return Joi.validate(user, schema)
 }
 
+function validateSchemaForUpdate(user){
+  const schema = {
+    name: Joi.string().min(3).max(50),
+    email: Joi.string().min(3).max(255).email()
+  }
+  return Joi.validate(user, schema)
+}
+
 module.exports.User = User
 module.exports.validate = validateSchema
+module.exports.validateForUpdate = validateSchemaForUpdate
