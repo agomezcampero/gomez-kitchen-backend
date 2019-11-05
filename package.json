@@ -1,0 +1,32 @@
+{
+  "name": "y",
+  "version": "1.0.0",
+  "description": "backend for gomez kitchen",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agomezcampero/gomez-kitchen-backend.git"
+  },
+  "author": "agomezcampero",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/agomezcampero/gomez-kitchen-backend/issues"
+  },
+  "homepage": "https://github.com/agomezcampero/gomez-kitchen-backend#readme",
+  "devDependencies": {
+    "jest": "^24.9.0",
+    "supertest": "^4.0.2"
+  },
+  "dependencies": {
+    "config": "^3.2.4",
+    "express": "^4.17.1",
+    "express-async-errors": "^3.1.1",
+    "joi": "^14.3.1",
+    "joi-objectid": "^3.0.1",
+    "mongoose": "^5.7.7",
+    "winston": "^3.2.1"
+  }
+}
