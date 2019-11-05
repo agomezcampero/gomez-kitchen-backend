@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const {User} = require('../../../models/user')
 const jwt = require('jsonwebtoken')
 const config = require('config')
+const bcrypt = require('bcrypt')
 let server
 
 describe('/api/users', () => {
@@ -334,6 +335,92 @@ describe('/api/users', () => {
     })
 
   })
+
+  describe('PUT /me/password', () => {
+    let user
+    let token
+    let currentPassword
+    let newPassword
+
+    const exec = () => {
+      return request(server)
+        .put('/api/users/me/password')
+        .set('x-auth-token', token)
+        .send({currentPassword, newPassword})
+    }
+
+    beforeEach(async () =>{
+      currentPassword = '12345678'
+      newPassword = 'abcdefghi'
+      const salt = await bcrypt.genSalt(10)
+      hashedPassword = await bcrypt.hash(currentPassword, salt)
+      user = new User ({
+        name: 'name1',
+        email: 'email1@test.com',
+        password: hashedPassword
+      })
+      await user.save()
+      token = user.generateAuthToken()
+    })
+
+    it('should return 401 if user is not logged in', async () => {
+      token = ''
+
+      const res = await exec()
+
+      expect(res.status).toBe(401)
+    })
+
+    it('should return 400 if current password is not sent', async () => {
+      currentPassword = ''
+
+      const res = await exec()
+
+      expect(res.status).toBe(400)
+    })
+
+    it('should return 400 if new password is not sent', async () => {
+      newPassword = ''
+
+      const res = await exec()
+
+      expect(res.status).toBe(400)
+    })
+
+    it('should return 400 if new password is less than 6 characters', async () => {
+      newPassword = '123'
+
+      const res = await exec()
+
+      expect(res.status).toBe(400)
+    })
+
+    it('should return 400 if the current password sent is not valid', async () => {
+      currentPassword = '87654321'
+
+      const res = await exec()
+
+      expect(res.status).toBe(400)
+    })
+
+    it('should return 200 if the request is valid', async () => {
+      const res = await exec()
+
+      expect(res.status).toBe(200)
+    })
+
+    it('should update the password if the request is valid', async () => {
+      res = await exec()
+
+      const userInDb = await User.findById(user._id)
+      const validPassword = await bcrypt.compare(newPassword, userInDb.password)
+
+      expect(validPassword).toBeTruthy()
+    })
+
+
+  })
+
 
 
 

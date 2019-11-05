@@ -1,4 +1,4 @@
-const { User, validate, validateForUpdate } = require('../models/user')
+const { User, validate, validateForUpdate, validateForPasswordChange } = require('../models/user')
 const express = require('express')
 const router = express.Router()
 const bcrypt = require('bcrypt')
@@ -51,6 +51,20 @@ router.put('/me', [auth, validateInput(validateForUpdate)], async (req, res) => 
   user.save()
 
   res.send(_.pick(user, ['_id', 'email', 'name']))
+})
+
+router.put('/me/password', [auth, validateInput(validateForPasswordChange)], async (req, res) => {
+  let user = await User.findById(req.user)
+
+  const validPassword = await bcrypt.compare(req.body.currentPassword, user.password)
+  if (!validPassword) return res.status(400).send('Invalid password')
+
+  const salt = await bcrypt.genSalt(10)
+  user.password = await bcrypt.hash(req.body.newPassword, salt)
+
+  await user.save()
+
+  res.send('Password updated')
 })
 
 module.exports = router

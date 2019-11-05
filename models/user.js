@@ -50,6 +50,15 @@ function validateSchemaForUpdate(user){
   return Joi.validate(user, schema)
 }
 
+function validateSchemaForPasswordChange(user){
+  const schema = {
+    currentPassword: Joi.string().required(),
+    newPassword: Joi.string().min(6).max(50).required()
+  }
+  return Joi.validate(user,schema)
+}
+
 module.exports.User = User
 module.exports.validate = validateSchema
 module.exports.validateForUpdate = validateSchemaForUpdate
+module.exports.validateForPasswordChange = validateSchemaForPasswordChange
