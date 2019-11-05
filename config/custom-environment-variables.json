@@ -1,4 +1,5 @@
 {
   "jwtPrivateKey": "gomez-kitchen_jwtPrivateKey",
-  "db": "gomez-kitchen_db"
+  "db": "gomez-kitchen_db",
+  "port": "PORT"
 }
