@@ -201,14 +201,60 @@ describe('/api/users', () => {
     })
   })
 
-  describe('GET /other/:id', () => {
+  describe('GET /me', () => {
+    let user
+    let token
+
+    const exec = () => {
+      return request(server)
+        .get('/api/users/me')
+        .set('x-auth-token', token)
+        .send()
+    }
+
+    beforeEach(async () =>{
+      user = new User ({
+        name: 'name1',
+        email: 'email@test.com',
+        password: '12345678'
+      })
+      await user.save()
+      id = user._id
+      token = user.generateAuthToken()
+    })
+
+    it('should return 401 if client is not logged in', async () => {
+      token = ''
+
+      const res = await exec()
+
+      expect(res.status).toBe(401)
+    })
+
+    it('should return 200 if valid request', async () => {
+      const res = await exec()
+
+      expect(res.status).toBe(200)
+    })
+
+    it('should return the id, name, and email of the user', async () => {
+      const res = await exec()
+
+      expect(res.body).toHaveProperty('_id')
+      expect(res.body.name).toBe('name1')
+      expect(res.body.email).toBe('email@test.com')
+
+    })
+  })
+
+  describe('GET /:id', () => {
     let user 
     let id
     let token
 
     const exec = () => {
       return request(server)
-        .get('/api/users/other/' + id)
+        .get('/api/users/' + id)
         .set('x-auth-token', token)
         .send()
     }
@@ -259,52 +305,6 @@ describe('/api/users', () => {
 
       expect(res.body.name).toBe('name1')
       expect(res.body).toHaveProperty('_id')
-    })
-  })
-
-  describe('GET /me', () => {
-    let user
-    let token
-
-    const exec = () => {
-      return request(server)
-        .get('/api/users/me')
-        .set('x-auth-token', token)
-        .send()
-    }
-
-    beforeEach(async () =>{
-      user = new User ({
-        name: 'name1',
-        email: 'email@test.com',
-        password: '12345678'
-      })
-      await user.save()
-      id = user._id
-      token = user.generateAuthToken()
-    })
-
-    it('should return 401 if client is not logged in', async () => {
-      token = ''
-
-      const res = await exec()
-
-      expect(res.status).toBe(401)
-    })
-
-    it('should return 200 if valid request', async () => {
-      const res = await exec()
-
-      expect(res.status).toBe(200)
-    })
-
-    it('should return the id, name, and email of the user', async () => {
-      const res = await exec()
-
-      expect(res.body).toHaveProperty('_id')
-      expect(res.body.name).toBe('name1')
-      expect(res.body.email).toBe('email@test.com')
-
     })
   })
 

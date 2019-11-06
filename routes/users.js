@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt')
 const validateInput = require('../middleware/validateInput')
 const validateObjectId = require('../middleware/validateObjectId')
 const auth = require ('../middleware/auth')
+const getAll = require('../middleware/getAll')
 const _ = require('lodash')
 
 router.post('/', validateInput(validate), async (req, res) => {
@@ -32,34 +33,18 @@ router.post('/', validateInput(validate), async (req, res) => {
 })
 
 router.get('/', auth, async (req, res) => {
-  const page = parseInt(req.query.page, 10) || 1
-  const itemsPerPage = parseInt(req.query.itemsPerPage, 10) || 10
-  const users = await User
-    .find({})
-    .skip((page - 1) * itemsPerPage)
-    .limit(itemsPerPage)
-
-  const totalItems = await User.countDocuments({})
-  const totalPages = Math.floor((totalItems - 1)/itemsPerPage + 1)
-  const items = users.length 
-
-  const pagination = { items, totalItems, page, totalPages}
-
-  res.send({
-    data: users,
-    pagination: pagination
-  })
-})
-
-router.get('/other/:id', [auth, validateObjectId], async (req, res) => {
-  const user = await User.findById(req.params.id)
-  if (!user) return res.status(404).send('No user with given id exists')
-  res.send(_.pick(user, ['_id', 'name']))
+  res.send(await getAll(req, User))
 })
 
 router.get('/me', [auth], async (req, res) => {
   const user = await User.findById(req.user)
   res.send(_.pick(user, ['_id', 'email', 'name']))
+})
+
+router.get('/:id', [auth, validateObjectId], async (req, res) => {
+  const user = await User.findById(req.params.id)
+  if (!user) return res.status(404).send('No user with given id exists')
+  res.send(_.pick(user, ['_id', 'name']))
 })
 
 router.put('/me', [auth, validateInput(validateForUpdate)], async (req, res) => {
