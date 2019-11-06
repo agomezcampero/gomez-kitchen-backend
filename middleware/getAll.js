@@ -6,7 +6,7 @@ module.exports = async (req, Obj, filter) => {
     .skip((page - 1) * itemsPerPage)
     .limit(itemsPerPage)
 
-  const totalItems = await Obj.countDocuments({})
+  const totalItems = await Obj.countDocuments(filter)
   const totalPages = Math.floor((totalItems - 1)/itemsPerPage + 1)
   const items = objects.length 
 

@@ -54,5 +54,17 @@ function validateSchema(ingredient){
   return Joi.validate(ingredient, schema)
 }
 
+function validateSchemaForUpdate(ingredient){
+  const schema = {
+    name: Joi.string().min(3).max(50),
+    price: Joi.number().min(0).max(99999999),
+    unit: Joi.string().valid(unitEnum),
+    amount: Joi.number().min(0).max(99999999),
+    link: Joi.string().min(10).max(1000)
+  }
+  return Joi.validate(ingredient, schema)
+}
+
 module.exports.Ingredient = Ingredient
 module.exports.validate = validateSchema
+module.exports.validateForUpdate = validateSchemaForUpdate
