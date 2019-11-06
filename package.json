@@ -4,7 +4,7 @@
   "description": "backend for gomez kitchen",
   "main": "index.js",
   "scripts": {
-    "test": "jest --watchAll --verbose --runInBand --coverage",
+    "test": "jest --verbose --runInBand --coverage",
     "start": "node index.js"
   },
   "engines": {

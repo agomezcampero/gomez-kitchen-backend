@@ -132,6 +132,75 @@ describe('/api/users', () => {
     })
   })
 
+  describe('GET /', () => {
+    let token
+    let params
+
+    const exec = () => {
+      return request(server)
+        .get('/api/users' + params)
+        .set('x-auth-token', token)
+        .send()
+    }
+
+    beforeEach(async () => {
+      const user = new User ({
+        name: 'name1',
+        email: 'email@test.com',
+        password: '12345678'
+      })
+      await user.save()
+      const user2 = new User ({
+        name: 'name2',
+        email: 'email2@test.com',
+        password: '12345678'
+      })
+      await user2.save()
+      const user3= new User ({
+        name: 'name3',
+        email: 'email3@test.com',
+        password: '12345678'
+      })
+      await user3.save()
+      token = new User().generateAuthToken()
+      params = ''
+    })
+
+    it('should return 401 if client is not logged in', async () => {
+      token = ''
+
+      const res = await exec()
+
+      expect(res.status).toBe(401)
+    })
+
+    it('should return 200 if the request is valid', async () => {
+      const res = await exec()
+
+      expect(res.status).toBe(200)
+    })
+
+    it('should return the users in the data section', async () => {
+      const res = await exec()
+
+      expect(res.body.data.length).toBe(3)
+      expect(res.body.data.some(u => u.name === 'name1')).toBeTruthy()
+      expect(res.body.data.some(u => u.name === 'name2')).toBeTruthy()
+      expect(res.body.data.some(u => u.name === 'name3')).toBeTruthy()
+    })
+
+    it('should return the pagination information', async () => {
+      params = '?itemsPerPage=1&page=2'
+
+      const res = await exec()
+
+      expect(res.body.pagination.totalItems).toBe(3)
+      expect(res.body.pagination.page).toBe(2)
+      expect(res.body.pagination.totalPages).toBe(3)
+      expect(res.body.pagination.items).toBe(1)
+    })
+  })
+
   describe('GET /other/:id', () => {
     let user 
     let id
