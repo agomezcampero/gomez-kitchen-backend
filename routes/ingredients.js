@@ -34,8 +34,8 @@ router.post('/lider', [auth, validateInput(validateForLider)], async (req, res) 
     price: attr.price,
     unit: attr.unit,
     amount: attr.amount,
-    owner: req.user._id,
     liderId: req.body.liderId,
+    owner: req.user._id,
     followers: [req.user._id]
   })
 

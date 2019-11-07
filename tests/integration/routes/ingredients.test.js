@@ -115,7 +115,7 @@ describe('/api/ingredients', () => {
       expect(ingredient.followers[0].toHexString()).toBe(userId.toHexString())
     })
 
-    it('should return the ingredient', async() => {
+    it('should return the ingredient', async () => {
       const res = await exec()
 
       expect(res.body.name).toBe(name)

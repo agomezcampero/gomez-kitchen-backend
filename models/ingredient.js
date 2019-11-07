@@ -7,7 +7,7 @@ const ingredientSchema = new mongoose.Schema({
   name: {
     type: String,
     minlength: 3,
-    maxlength: 50,
+    maxlength: 100,
     required: true
   },
   price: {
@@ -45,7 +45,7 @@ const Ingredient = mongoose.model('Ingredient', ingredientSchema)
 
 function validateSchema(ingredient){
   const schema = {
-    name: Joi.string().min(3).max(50).required(),
+    name: Joi.string().min(3).max(100).required(),
     price: Joi.number().min(0).max(99999999).required(),
     unit: Joi.string().valid(unitEnum),
     amount: Joi.number().min(0).max(99999999).required(),
@@ -56,7 +56,7 @@ function validateSchema(ingredient){
 
 function validateSchemaForUpdate(ingredient){
   const schema = {
-    name: Joi.string().min(3).max(50),
+    name: Joi.string().min(3).max(100),
     price: Joi.number().min(0).max(99999999),
     unit: Joi.string().valid(unitEnum),
     amount: Joi.number().min(0).max(99999999),
@@ -76,3 +76,4 @@ module.exports.Ingredient = Ingredient
 module.exports.validate = validateSchema
 module.exports.validateForUpdate = validateSchemaForUpdate
 module.exports.validateForLider = validateSchemaForLider
+module.exports.unitEnum = unitEnum

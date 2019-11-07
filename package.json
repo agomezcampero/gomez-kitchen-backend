@@ -4,14 +4,11 @@
   "description": "backend for gomez kitchen",
   "main": "index.js",
   "scripts": {
-    "test": "jest --verbose --runInBand --coverage",
+    "test": "jest --verbose --runInBand --coverage --config ./tests/jest.config.js",
     "start": "node index.js"
   },
   "engines": {
     "node": "10.16.3"
-  },
-  "jest": {
-    "testEnvironment": "node"
   },
   "repository": {
     "type": "git",
