@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const Joi = require('joi')
 
-const unitEnum = ['kg', 'g', 'l', 'ml', 'un']
+const unitEnum = ['kg', 'g', 'l', 'ml', 'un', 'cc']
 
 const ingredientSchema = new mongoose.Schema({
   name: {
@@ -28,7 +28,7 @@ const ingredientSchema = new mongoose.Schema({
     max: 99999999,
     default: 1
   },
-  link: {
+  liderId: {
     type: String
   },
   owner: {
@@ -49,7 +49,7 @@ function validateSchema(ingredient){
     price: Joi.number().min(0).max(99999999).required(),
     unit: Joi.string().valid(unitEnum),
     amount: Joi.number().min(0).max(99999999).required(),
-    link: Joi.string().min(10).max(1000)
+    liderId: Joi.string().min(1).max(10)
   }
   return Joi.validate(ingredient, schema)
 }
@@ -60,7 +60,14 @@ function validateSchemaForUpdate(ingredient){
     price: Joi.number().min(0).max(99999999),
     unit: Joi.string().valid(unitEnum),
     amount: Joi.number().min(0).max(99999999),
-    link: Joi.string().min(10).max(1000)
+    liderId: Joi.string().min(1).max(10)
+  }
+  return Joi.validate(ingredient, schema)
+}
+
+function validateSchemaForLider(ingredient){
+  const schema = {
+    liderId: Joi.string().min(1).max(10).required()
   }
   return Joi.validate(ingredient, schema)
 }
@@ -68,3 +75,4 @@ function validateSchemaForUpdate(ingredient){
 module.exports.Ingredient = Ingredient
 module.exports.validate = validateSchema
 module.exports.validateForUpdate = validateSchemaForUpdate
+module.exports.validateForLider = validateSchemaForLider

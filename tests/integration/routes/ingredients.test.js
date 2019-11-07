@@ -8,7 +8,7 @@ describe('/api/ingredients', () => {
   let token
   let userId
 
-  beforeEach( async() => {
+  beforeEach(async () => {
     server = require('../../../index')
     const user = new User({
       name: 'name1',
@@ -30,7 +30,6 @@ describe('/api/ingredients', () => {
     let price
     let unit
     let amount
-    let link
 
     beforeEach(() => {
       name = 'ingredient1'
@@ -43,7 +42,7 @@ describe('/api/ingredients', () => {
       return request(server)
         .post('/api/ingredients')
         .set('x-auth-token', token)
-        .send({ name, price, unit, amount, link })
+        .send({ name, price, unit, amount })
     }
 
     it('should return 401 if user is not logged in', async () => {
@@ -128,6 +127,86 @@ describe('/api/ingredients', () => {
     })
 
    
+  })
+
+  describe('POST /lider', () => {
+    let liderId
+
+    beforeEach(() => {
+      liderId = '3685'
+    })
+
+    const exec = () => {
+      return request(server)
+        .post('/api/ingredients/lider')
+        .set('x-auth-token', token)
+        .send({ liderId })
+    }
+
+    it('should return 401 if user is not logged in', async () => {
+      token = ''
+
+      const res = await exec()
+
+      expect(res.status).toBe(401)
+    })
+
+    it('should return 400 if liderId is missing', async () => {
+      liderId = ''
+
+      const res = await exec()
+
+      expect(res.status).toBe(400)
+    })
+
+    it('should return 400 if the liderId is invalid', async () => {
+      liderId = 'abce'
+
+      const res = await exec()
+
+      expect(res.status).toBe(400)
+    })
+
+    it('should return 200 if the request is valid', async () => {
+      const res = await exec()
+
+      expect(res.status).toBe(200)
+    })
+
+    it('should save the ingredient in the db', async () => {
+      await exec()
+
+      const ingredient = await Ingredient.findOne({liderId})
+
+      const ingredients = await Ingredient.find({})
+
+      expect(ingredient).not.toBeNull()
+    })
+
+    it('should add id of the creator of the ingredient as owner', async () => {
+      await exec()
+
+      const ingredient = await Ingredient.findOne({liderId})
+
+      expect(ingredient.owner.toHexString()).toBe(userId.toHexString())
+    })
+
+    it('should add id of the creator of the ingredient as follower', async () => {
+      await exec()
+
+      const ingredient = await Ingredient.findOne({liderId})
+
+      expect(ingredient.followers[0].toHexString()).toBe(userId.toHexString())
+    })
+
+    it('should return the ingredient', async() => {
+      const res = await exec()
+
+      expect(res.body).toHaveProperty('name')
+      expect(res.body).toHaveProperty('price')
+      expect(res.body).toHaveProperty('unit')
+      expect(res.body).toHaveProperty('amount')
+    })
   })
 
   describe('GET /', () => {
@@ -365,12 +444,13 @@ describe('/api/ingredients', () => {
     let price
     let unit
     let amount
+    let liderId
 
     const exec = () => {
       return request(server)
         .put('/api/ingredients/' + id)
         .set('x-auth-token', token)
-        .send({ name, price, unit, amount })
+        .send({ name, price, unit, amount, liderId })
     }
 
     beforeEach(async () => {
@@ -380,6 +460,7 @@ describe('/api/ingredients', () => {
         unit: 'kg',
         amount: 1,
         owner: userId,
+        liderId: '1234',
         followers: [userId]
       })
       await ingredient.save()
@@ -389,6 +470,7 @@ describe('/api/ingredients', () => {
       price = 450
       unit = 'l'
       amount = 2
+      liderId = '5678'
 
     })
 
@@ -471,6 +553,7 @@ describe('/api/ingredients', () => {
       expect(ingredientInDb.price).toBe(450)
       expect(ingredientInDb.unit).toBe('l')
       expect(ingredientInDb.amount).toBe(2)
+      expect(ingredientInDb.liderId).toBe('5678')
     })
     
     it('should return the update ingredient', async () => {
@@ -480,6 +563,7 @@ describe('/api/ingredients', () => {
       expect(res.body.price).toBe(450)
       expect(res.body.unit).toBe('l')
       expect(res.body.amount).toBe(2)
+      expect(res.body.liderId).toBe('5678')
     })
   })
 
@@ -591,6 +675,99 @@ describe('/api/ingredients', () => {
       expect(ingredientInDb.owner.toHexString()).toBe(newUserId.toHexString())
       expect(ingredientInDb.followers.length).toBe(1)
       expect(ingredientInDb.followers[0].toHexString()).toBe(newUserId.toHexString())  
+    })
+
+  })
+
+  describe('PUT /:id/refresh', () => {
+    let id
+    let token
+
+    const exec = () => {
+      return request(server)
+        .put(`/api/ingredients/${id}/refresh`)
+        .set('x-auth-token', token)
+        .send()
+    }
+
+    beforeEach(async () => {
+      const ingredient = new Ingredient({
+        name: 'name1',
+        price: 100,
+        unit: 'kg',
+        amount: 1,
+        owner: userId,
+        liderId: '605784',
+        followers: [userId]
+      })
+      await ingredient.save()
+      id = ingredient._id
+
+      token = new User().generateAuthToken()
+    })
+
+    it('should return 401 if the user is not logged in', async () => {
+      token = ''
+
+      const res = await exec()
+
+      expect(res.status).toBe(401)
+    })
+
+    it('should return 404 if the id is not valid', async () => {
+      id = '1'
+
+      const res = await exec()
+
+      expect(res.status).toBe(404)
+    })
+
+    it('should return 404 if the ingredient doesnt exist', async () => {
+      id = new mongoose.Types.ObjectId()
+
+      const res = await exec()
+
+      expect(res.status).toBe(404)
+    })
+
+    it('should return 400 if it couldnt find the product in lider', async () => {
+      const ingredient2 = new Ingredient({
+        name: 'name2',
+        price: 990,
+        unit: 'kg',
+        amount: 1,
+        owner: userId,
+        liderId: 'abcd',
+        followers: [userId]
+      })
+      await ingredient2.save()
+      id = ingredient2._id
+
+      const res = await exec()
+
+      expect(res.status).toBe(400)
+    })
+
+    it('should return 200 if it could find the product and update', async() => {
+      const res = await exec()
+
+      expect(res.status).toBe(200)
+    })
+
+    it('should save the ingredient with the new price in the db', async() => {
+      res = await exec()
+
+      const ingredientInDb = await Ingredient.findById(id)
+
+      expect(ingredientInDb.name).toBe('name1')
+      expect(ingredientInDb.price).not.toBe(100)
+    })
+
+    it('should return the ingredient with the new price', async() => {
+      const res = await exec()
+
+      expect(res.body.name).toBe('name1')
+      expect(res.body.price).not.toBe(100)
     })
 
   })
