@@ -3,7 +3,7 @@ const winston = require('winston')
 const config = require('config')
 
 module.exports = function() { 
-  const db = config.get('db')
+  const db = config.get('db') || process.env.gomezkitchen_db
   mongoose.connect(
     db, 
     { useNewUrlParser: true, useUnifiedTopology: true}
