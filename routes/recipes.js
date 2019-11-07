@@ -16,7 +16,7 @@ const getIngredientsToSave = async (ing) => {
 
   if(ingInDb.unit != ing.unit) return 'Error'
   
-  price = ingInDb.price * ing.amount
+  price = Math.round(ingInDb.price * ing.amount / ingInDb.amount)
   return {
     _id: ing._id,
     name: ingInDb.name,
@@ -33,7 +33,7 @@ const updateIngredients = async (ing) => {
   return {
     _id: ing._id,
     name: ingInDb.name,
-    price: ingInDb.price * ing.amount,
+    price: Math.round(ingInDb.price * ing.amount / ingInDb.amount),
     unit: ing.unit,
     amount: ing.amount
   }
