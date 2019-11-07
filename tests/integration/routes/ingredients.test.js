@@ -380,7 +380,7 @@ describe('/api/ingredients', () => {
     })
 
     it('should return no ingredients if the selected user doesnt exist or doesnt have ingredients', async () => {
-      userId = mongoose.Types.ObjectId()
+      userId = new mongoose.Types.ObjectId()
 
       const res = await exec()
 

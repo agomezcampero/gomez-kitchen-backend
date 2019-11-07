@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const Joi = require('joi')
+const { getAttributes } = require('../helpers/lider')
 
 const unitEnum = ['kg', 'g', 'l', 'ml', 'un', 'cc']
 
@@ -40,6 +41,17 @@ const ingredientSchema = new mongoose.Schema({
     ref: 'User'
   }]
 })
+
+ingredientSchema.methods.refresh = async function() {
+  if (!this.liderId) return false
+
+  const attr = await getAttributes(this.liderId)
+  const price = attr.price
+  if (price === 0 || !price) return false
+
+  this.price = attr.price
+  return true
+}
 
 const Ingredient = mongoose.model('Ingredient', ingredientSchema)
 

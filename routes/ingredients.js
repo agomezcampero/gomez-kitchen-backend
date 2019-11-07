@@ -14,8 +14,8 @@ router.post('/', [auth, validateInput(validate)], async (req, res) => {
     price: req.body.price,
     unit: req.body.unit,
     amount: req.body.amount,
+    liderId: req.body.liderId,
     owner: req.user._id,
-    liderId: req.liderId,
     followers: [req.user._id]
   })
 
@@ -98,14 +98,15 @@ router.put('/:id/refresh', [auth, validateObjectId], async (req, res) => {
 
   if(!ingredient.liderId) return res.status(400).send('Ingredient doesnt have a Lider Id')
 
-  const attr = await getAttributes(ingredient.liderId)
-  const price = attr.price
+  const refresh = await ingredient.refresh()
+  if (!refresh) return res.status(400).send(`Lider.cl did not find the product, check that "${ingredient.liderId}" is the correct product id`)
+  // const attr = await getAttributes(ingredient.liderId)
+  // const price = attr.price
 
-  if (price === 0 || !price) return res.status(400).send(`Lider.cl did not find the product, check that "${ingredient.liderId}" is the correct product id`)
+  // if (price === 0 || !price) return res.status(400).send(`Lider.cl did not find the product, check that "${ingredient.liderId}" is the correct product id`)
 
-  if (ingredient.price === price) return res.send(ingredient)
+  // if (ingredient.price === price) return res.send(ingredient)
 
-  ingredient.price = price
   await ingredient.save()
 
   res.send(ingredient)
