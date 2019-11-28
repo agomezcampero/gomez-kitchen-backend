@@ -25,7 +25,9 @@ async function getAttributes(liderId) {
     .text()
     .split(" ");
   const amount =
-    amountAndUnit.length === 2 ? parseInt(amountAndUnit[0], 10) : null;
+    amountAndUnit.length === 2
+      ? parseInt(amountAndUnit[0].replace(",", "."), 10)
+      : null;
   const unit =
     amountAndUnit.length === 2 ? amountAndUnit[1].toLowerCase() : null;
 
@@ -47,28 +49,34 @@ async function search(query) {
   let prices = $(".price-sell");
   let attributes = $(".product-attribute");
   let cont = 0;
-  while (nextId.attr()) {
-    let ingredient = {};
-    ingredient.liderId = nextId.attr("prod-number");
-    ingredient.name =
-      names[cont].children[0].data + ", " + descriptions[cont].children[0].data;
+  while (nextId.attr() && cont < 40) {
+    console.log(ingredients);
+    try {
+      let ingredient = {};
+      ingredient.liderId = nextId.attr("prod-number");
+      ingredient.name =
+        names[cont].children[0].data +
+        ", " +
+        descriptions[cont].children[0].data;
 
-    console.log();
-    ingredient.price = parseInt(
-      prices[cont].children[0].children[0].data
-        .replace("$", "")
-        .replace(".", ""),
-      10
-    );
-    const amountAndUnit = attributes[cont].children[0].data.split(" ");
-    ingredient.amount =
-      amountAndUnit.length === 2 ? parseInt(amountAndUnit[0], 10) : null;
-    ingredient.unit =
-      amountAndUnit.length === 2 ? amountAndUnit[1].toLowerCase() : null;
+      ingredient.price = parseInt(
+        prices[cont].children[0].children[0].data
+          .replace("$", "")
+          .replace(".", ""),
+        10
+      );
+      const amountAndUnit = attributes[cont].children[0].data.split(" ");
+      ingredient.amount =
+        amountAndUnit.length === 2
+          ? parseInt(amountAndUnit[0].replace(",", "."), 10)
+          : null;
+      ingredient.unit =
+        amountAndUnit.length === 2 ? amountAndUnit[1].toLowerCase() : null;
 
+      ingredients.push(ingredient);
+    } catch (ex) {}
     nextId = nextId.next();
     cont += 1;
-    ingredients.push(ingredient);
   }
   return ingredients;
 }
