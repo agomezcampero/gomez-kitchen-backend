@@ -10,7 +10,7 @@ const {
   validateForUpdate,
   validateForLider
 } = require("../models/ingredient");
-const { getAttributes } = require("../helpers/lider");
+const { getAttributes, search: liderSearch } = require("../helpers/lider");
 
 router.post("/", [auth, validateInput(validate)], async (req, res) => {
   const ingredient = new Ingredient({
@@ -65,6 +65,11 @@ router.post(
 
 router.get("/", async (req, res) => {
   res.send(await getAll(req, Ingredient));
+});
+
+router.get("/lider", async (req, res) => {
+  const ingredients = await liderSearch(req.query.query);
+  res.send({ data: ingredients });
 });
 
 router.get("/:id", [validateObjectId], async (req, res) => {
