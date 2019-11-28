@@ -1,5 +1,5 @@
 {
   "jwtPrivateKey": "1234",
   "db": "mongodb://localhost/gomez-kitchen_tests",
-  "port": 3001
+  "port": 3002
 }

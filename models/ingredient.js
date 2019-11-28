@@ -1,8 +1,8 @@
-const mongoose = require('mongoose')
-const Joi = require('joi')
-const { getAttributes } = require('../helpers/lider')
+const mongoose = require("mongoose");
+const Joi = require("joi");
+const { getAttributes } = require("../helpers/lider");
 
-const unitEnum = ['kg', 'g', 'l', 'ml', 'un', 'cc']
+const unitEnum = ["kg", "g", "l", "ml", "un", "cc"];
 
 const ingredientSchema = new mongoose.Schema({
   name: {
@@ -21,7 +21,7 @@ const ingredientSchema = new mongoose.Schema({
     type: String,
     required: true,
     enum: unitEnum,
-    default: 'un'
+    default: "un"
   },
   amount: {
     type: Number,
@@ -34,58 +34,83 @@ const ingredientSchema = new mongoose.Schema({
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: "User"
   },
-  followers: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }]
-})
+  followers: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    }
+  ]
+});
 
 ingredientSchema.methods.refresh = async function() {
-  if (!this.liderId) return false
+  if (!this.liderId) return false;
 
-  const attr = await getAttributes(this.liderId)
-  const price = attr.price
-  if (price === 0 || !price) return false
+  const attr = await getAttributes(this.liderId);
+  const price = attr.price;
+  if (price === 0 || !price) return false;
 
-  this.price = attr.price
-  return true
-}
+  this.price = attr.price;
+  this.unit = attr.unit;
+  this.amount = attr.amount;
+  return true;
+};
 
-const Ingredient = mongoose.model('Ingredient', ingredientSchema)
+const Ingredient = mongoose.model("Ingredient", ingredientSchema);
 
-function validateSchema(ingredient){
+function validateSchema(ingredient) {
   const schema = {
-    name: Joi.string().min(3).max(100).required(),
-    price: Joi.number().min(0).max(99999999).required(),
+    name: Joi.string()
+      .min(3)
+      .max(100)
+      .required(),
+    price: Joi.number()
+      .min(0)
+      .max(99999999)
+      .required(),
     unit: Joi.string().valid(unitEnum),
-    amount: Joi.number().min(0).max(99999999).required(),
-    liderId: Joi.string().min(1).max(10)
-  }
-  return Joi.validate(ingredient, schema)
+    amount: Joi.number()
+      .min(0)
+      .max(99999999)
+      .required(),
+    liderId: Joi.string()
+      .min(0)
+      .max(10)
+      .allow("")
+  };
+  return Joi.validate(ingredient, schema);
 }
 
-function validateSchemaForUpdate(ingredient){
+function validateSchemaForUpdate(ingredient) {
   const schema = {
-    name: Joi.string().min(3).max(100),
-    price: Joi.number().min(0).max(99999999),
+    name: Joi.string()
+      .min(3)
+      .max(100),
+    price: Joi.number()
+      .min(0)
+      .max(99999999),
     unit: Joi.string().valid(unitEnum),
-    amount: Joi.number().min(0).max(99999999),
-    liderId: Joi.string().min(1).max(10)
-  }
-  return Joi.validate(ingredient, schema)
+    amount: Joi.number()
+      .min(0)
+      .max(99999999),
+    liderId: Joi.string().allow("")
+  };
+  return Joi.validate(ingredient, schema);
 }
 
-function validateSchemaForLider(ingredient){
+function validateSchemaForLider(ingredient) {
   const schema = {
-    liderId: Joi.string().min(1).max(10).required()
-  }
-  return Joi.validate(ingredient, schema)
+    liderId: Joi.string()
+      .min(1)
+      .max(10)
+      .required()
+  };
+  return Joi.validate(ingredient, schema);
 }
 
-module.exports.Ingredient = Ingredient
-module.exports.validate = validateSchema
-module.exports.validateForUpdate = validateSchemaForUpdate
-module.exports.validateForLider = validateSchemaForLider
-module.exports.unitEnum = unitEnum
+module.exports.Ingredient = Ingredient;
+module.exports.validate = validateSchema;
+module.exports.validateForUpdate = validateSchemaForUpdate;
+module.exports.validateForLider = validateSchemaForLider;
+module.exports.unitEnum = unitEnum;

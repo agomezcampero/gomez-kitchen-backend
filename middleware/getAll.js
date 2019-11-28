@@ -1,6 +1,10 @@
 module.exports = async (req, Obj, filter) => {
-  const page = parseInt(req.query.page, 10) || 1;
-  const itemsPerPage = parseInt(req.query.itemsPerPage, 10) || 10;
+  let { page, itemsPerPage, search } = req.query;
+  page ? (page = parseInt(page, 10)) : (page = 1);
+  itemsPerPage
+    ? (itemsPerPage = parseInt(itemsPerPage, 10))
+    : (itemsPerPage = 10);
+  if (search) filter = { ...filter, $text: { $search: search } };
   const objects = await Obj.find(filter)
     .skip((page - 1) * itemsPerPage)
     .limit(itemsPerPage);

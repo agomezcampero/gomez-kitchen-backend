@@ -1,7 +1,7 @@
-const mongoose = require('mongoose')
-const Joi = require('joi')
-const jwt = require('jsonwebtoken')
-const config = require('config')
+const mongoose = require("mongoose");
+const Joi = require("joi");
+const jwt = require("jsonwebtoken");
+const config = require("config");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -23,50 +23,78 @@ const userSchema = new mongoose.Schema({
     minlength: 6,
     maxlength: 1024
   }
-})
+});
 
 userSchema.methods.generateAuthToken = function() {
-  const token = jwt.sign({ _id: this._id }, config.get('jwtPrivateKey'))
-  return token
-}
+  const token = jwt.sign(
+    { _id: this._id, email: this.email, name: this.name },
+    config.get("jwtPrivateKey")
+  );
+  return token;
+};
 
-const User = mongoose.model('User', userSchema)
+const User = mongoose.model("User", userSchema);
 
-function validateSchema(user){
+function validateSchema(user) {
   const schema = {
-    name: Joi.string().min(3).max(50).required(),
-    email: Joi.string().min(3).max(255).required().email(),
-    password: Joi.string().min(6).max(50).required()
-  }
-  return Joi.validate(user, schema)
+    name: Joi.string()
+      .min(3)
+      .max(50)
+      .required(),
+    email: Joi.string()
+      .min(3)
+      .max(255)
+      .required()
+      .email(),
+    password: Joi.string()
+      .min(6)
+      .max(50)
+      .required()
+  };
+  return Joi.validate(user, schema);
 }
 
-function validateSchemaForUpdate(user){
+function validateSchemaForUpdate(user) {
   const schema = {
-    name: Joi.string().min(3).max(50),
-    email: Joi.string().min(3).max(255).email()
-  }
-  return Joi.validate(user, schema)
+    name: Joi.string()
+      .min(3)
+      .max(50),
+    email: Joi.string()
+      .min(3)
+      .max(255)
+      .email()
+  };
+  return Joi.validate(user, schema);
 }
 
-function validateSchemaForPasswordChange(user){
+function validateSchemaForPasswordChange(user) {
   const schema = {
     currentPassword: Joi.string().required(),
-    newPassword: Joi.string().min(6).max(50).required()
-  }
-  return Joi.validate(user,schema)
+    newPassword: Joi.string()
+      .min(6)
+      .max(50)
+      .required()
+  };
+  return Joi.validate(user, schema);
 }
 
-function validateSchemaForAuth(user){
+function validateSchemaForAuth(user) {
   const schema = {
-    email: Joi.string().min(3).max(255).required().email(),
-    password: Joi.string().min(6).max(50).required() 
-  }
-  return Joi.validate(user,schema)
+    email: Joi.string()
+      .min(3)
+      .max(255)
+      .required()
+      .email(),
+    password: Joi.string()
+      .min(6)
+      .max(50)
+      .required()
+  };
+  return Joi.validate(user, schema);
 }
 
-module.exports.User = User
-module.exports.validate = validateSchema
-module.exports.validateForUpdate = validateSchemaForUpdate
-module.exports.validateForPasswordChange = validateSchemaForPasswordChange
-module.exports.validateForAuth = validateSchemaForAuth
+module.exports.User = User;
+module.exports.validate = validateSchema;
+module.exports.validateForUpdate = validateSchemaForUpdate;
+module.exports.validateForPasswordChange = validateSchemaForPasswordChange;
+module.exports.validateForAuth = validateSchemaForAuth;
