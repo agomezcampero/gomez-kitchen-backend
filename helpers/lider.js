@@ -50,7 +50,6 @@ async function search(query) {
   let attributes = $(".product-attribute");
   let cont = 0;
   while (nextId.attr() && cont < 40) {
-    console.log(ingredients);
     try {
       let ingredient = {};
       ingredient.liderId = nextId.attr("prod-number");
