@@ -18,6 +18,7 @@ router.post("/", [auth, validateInput(validate)], async (req, res) => {
     price: req.body.price,
     unit: req.body.unit,
     amount: req.body.amount,
+    extraUnits: req.body.extraUnits,
     liderId: req.body.liderId,
     owner: req.user._id,
     followers: [req.user._id]
@@ -104,6 +105,7 @@ router.put(
     ingredient.price = req.body.price || ingredient.price;
     ingredient.unit = req.body.unit || ingredient.unit;
     ingredient.amount = req.body.amount || ingredient.amount;
+    ingredient.extraUnits = req.body.extraUnits || ingredient.extraUnits;
     ingredient.liderId = req.body.liderId || ingredient.liderId;
 
     if (!ingredient.owner) {

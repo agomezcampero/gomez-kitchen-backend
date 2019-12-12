@@ -2,7 +2,13 @@ const mongoose = require("mongoose");
 const Joi = require("joi");
 const { getAttributes } = require("../helpers/lider");
 
-const unitEnum = ["kg", "g", "l", "ml", "un", "cc"];
+const unitSchema = {
+  type: String,
+  required: true,
+  default: "un"
+};
+
+const amountSchema = {};
 
 const ingredientSchema = new mongoose.Schema({
   name: {
@@ -17,18 +23,14 @@ const ingredientSchema = new mongoose.Schema({
     min: 0,
     max: 99999999
   },
-  unit: {
-    type: String,
-    required: true,
-    enum: unitEnum,
-    default: "un"
-  },
-  amount: {
-    type: Number,
-    min: 0,
-    max: 99999999,
-    default: 1
-  },
+  unit: unitSchema,
+  amount: amountSchema,
+  extraUnits: [
+    {
+      unit: unitSchema,
+      amount: amountSchema
+    }
+  ],
   liderId: {
     type: String
   },
@@ -60,6 +62,14 @@ ingredientSchema.methods.refresh = async function() {
 const Ingredient = mongoose.model("Ingredient", ingredientSchema);
 
 function validateSchema(ingredient) {
+  const extraUnitsSchema = {
+    unit: Joi.string().required(),
+    amount: Joi.number()
+      .min(0)
+      .max(99999999)
+      .required()
+  };
+
   const schema = {
     name: Joi.string()
       .min(3)
@@ -69,11 +79,12 @@ function validateSchema(ingredient) {
       .min(0)
       .max(99999999)
       .required(),
-    unit: Joi.string().valid(unitEnum),
+    unit: Joi.string(),
     amount: Joi.number()
       .min(0)
       .max(99999999)
       .required(),
+    extraUnits: Joi.array().items(extraUnitsSchema),
     liderId: Joi.string()
       .min(0)
       .max(10)
@@ -83,6 +94,14 @@ function validateSchema(ingredient) {
 }
 
 function validateSchemaForUpdate(ingredient) {
+  const extraUnitsSchema = {
+    unit: Joi.string().required(),
+    amount: Joi.number()
+      .min(0)
+      .max(99999999)
+      .required()
+  };
+
   const schema = {
     name: Joi.string()
       .min(3)
@@ -90,10 +109,11 @@ function validateSchemaForUpdate(ingredient) {
     price: Joi.number()
       .min(0)
       .max(99999999),
-    unit: Joi.string().valid(unitEnum),
+    unit: Joi.string(),
     amount: Joi.number()
       .min(0)
       .max(99999999),
+    extraUnits: Joi.array().items(extraUnitsSchema),
     liderId: Joi.string().allow("")
   };
   return Joi.validate(ingredient, schema);
@@ -113,4 +133,3 @@ module.exports.Ingredient = Ingredient;
 module.exports.validate = validateSchema;
 module.exports.validateForUpdate = validateSchemaForUpdate;
 module.exports.validateForLider = validateSchemaForLider;
-module.exports.unitEnum = unitEnum;

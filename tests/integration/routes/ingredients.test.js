@@ -69,14 +69,6 @@ describe("/api/ingredients", () => {
       expect(res.status).toBe(400);
     });
 
-    it("should return 400 if unit is not enum", async () => {
-      unit = "abcdef";
-
-      const res = await exec();
-
-      expect(res.status).toBe(400);
-    });
-
     it("should return 400 if amount is not a number", async () => {
       amount = "abc";
 
@@ -487,14 +479,6 @@ describe("/api/ingredients", () => {
 
     it("should return 400 if the price is not a number", async () => {
       price = "abc";
-
-      const res = await exec();
-
-      expect(res.status).toBe(400);
-    });
-
-    it("should return 400 if the unit is not a enum", async () => {
-      unit = "abc";
 
       const res = await exec();
 
