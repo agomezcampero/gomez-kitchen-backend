@@ -14,6 +14,11 @@ const recipeSchema = new mongoose.Schema({
     min: 0,
     max: 99999999
   },
+  pricePerServing: {
+    type: Number,
+    min: 0,
+    max: 99999999
+  },
   ingredients: [
     {
       type: new mongoose.Schema({
@@ -68,6 +73,10 @@ const recipeSchema = new mongoose.Schema({
     type: Number,
     default: 2
   },
+  originalServings: {
+    type: Number,
+    default: 2
+  },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User"
@@ -78,6 +87,12 @@ const recipeSchema = new mongoose.Schema({
       ref: "User"
     }
   ]
+});
+
+recipeSchema.pre("save", function(next) {
+  this.originalServings = this.servings;
+  this.pricePerServing = this.price / this.servings;
+  return next();
 });
 
 const Recipe = mongoose.model("Recipe", recipeSchema);

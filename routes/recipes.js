@@ -174,6 +174,7 @@ router.put("/:id/refresh", [auth, validateObjectId], async (req, res) => {
 
   recipe.ingredients = ingredients;
   recipe.price = price;
+  recipe.pricePerServing = price / recipe.servings;
 
   await recipe.save();
 

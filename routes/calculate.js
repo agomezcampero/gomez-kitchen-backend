@@ -8,7 +8,7 @@ router.post("/generateList", [auth], async (req, res) => {
   const { recipes } = req.body;
   let ingredients = {};
   recipes.forEach(function(r) {
-    addIngredients(r.ingredients, ingredients);
+    addIngredients(r, ingredients);
   });
 
   res.send(
@@ -16,13 +16,15 @@ router.post("/generateList", [auth], async (req, res) => {
   );
 });
 
-const addIngredients = async (ingArray, ingHash) => {
-  await ingArray.forEach(async function(ing) {
+const addIngredients = async (recipe, ingHash) => {
+  const { servings, originalServings } = recipe;
+  await recipe.ingredients.forEach(async function(ing) {
     let { _id, name, primaryUnit, primaryAmount } = ing;
+    const amount = (primaryAmount * servings) / originalServings;
     if (!ingHash[_id]) {
-      ingHash[_id] = { name, unit: primaryUnit, amount: primaryAmount };
+      ingHash[_id] = { name, unit: primaryUnit, amount };
     } else {
-      ingHash[_id].amount += primaryAmount;
+      ingHash[_id].amount += amount;
     }
   });
 };
