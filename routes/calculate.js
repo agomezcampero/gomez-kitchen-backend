@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
+const { Ingredient } = require("../models/ingredient");
 const { objToArray } = require("../utils/objToArray");
 
 router.post("/generateList", [auth], async (req, res) => {
@@ -15,13 +16,13 @@ router.post("/generateList", [auth], async (req, res) => {
   );
 });
 
-const addIngredients = (ingArray, ingHash) => {
-  ingArray.forEach(function(ing) {
-    const { name, unit, amount } = ing;
-    if (!ingHash[`${name}|${unit}`]) {
-      ingHash[`${name}|${unit}`] = { name, unit, amount };
+const addIngredients = async (ingArray, ingHash) => {
+  await ingArray.forEach(async function(ing) {
+    let { _id, name, primaryUnit, primaryAmount } = ing;
+    if (!ingHash[_id]) {
+      ingHash[_id] = { name, unit: primaryUnit, amount: primaryAmount };
     } else {
-      ingHash[`${name}|${unit}`].amount += amount;
+      ingHash[_id].amount += primaryAmount;
     }
   });
 };

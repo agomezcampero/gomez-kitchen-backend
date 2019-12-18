@@ -40,6 +40,17 @@ const recipeSchema = new mongoose.Schema({
           max: 99999999,
           default: 1
         },
+        primaryUnit: {
+          type: String,
+          required: true,
+          default: "un"
+        },
+        primaryAmount: {
+          type: Number,
+          min: 0,
+          max: 99999999,
+          default: 1
+        },
         extraUnits: [{ type: String }]
       }),
       required: true
