@@ -4,6 +4,7 @@ const users = require("../routes/users");
 const auth = require("../routes/auth");
 const ingredients = require("../routes/ingredients");
 const recipes = require("../routes/recipes");
+const calculate = require("../routes/calculate");
 
 module.exports = function(app) {
   app.use(function(req, res, next) {
@@ -20,6 +21,7 @@ module.exports = function(app) {
   app.use("/api/auth", auth);
   app.use("/api/ingredients", ingredients);
   app.use("/api/recipes", recipes);
+  app.use("/api/calculate", calculate);
 
   app.use(error);
 };
