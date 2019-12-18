@@ -39,7 +39,8 @@ const recipeSchema = new mongoose.Schema({
           min: 0,
           max: 99999999,
           default: 1
-        }
+        },
+        extraUnits: [{ type: String }]
       }),
       required: true
     }

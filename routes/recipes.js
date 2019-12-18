@@ -16,6 +16,11 @@ const getIngredientsToSave = async ing => {
   if (!ingInDb) return "Error";
 
   let amountInDb = ingInDb.amount;
+  let extraUnits = [ingInDb.unit].concat(
+    ingInDb.extraUnits.map(function(eu) {
+      return eu["unit"];
+    })
+  );
   if (ingInDb.unit !== ing.unit) {
     extraUnit = ingInDb.extraUnits.find(el => el.unit === ing.unit);
     if (!extraUnit) return "Error";
@@ -29,7 +34,8 @@ const getIngredientsToSave = async ing => {
     name: ingInDb.name,
     price: price,
     unit: ing.unit,
-    amount: ing.amount
+    amount: ing.amount,
+    extraUnits
   };
 };
 
@@ -38,6 +44,11 @@ const updateIngredients = async ing => {
   await ingInDb.refresh();
   await ingInDb.save();
   let amountInDb = ingInDb.amount;
+  let extraUnits = [ingInDb.unit].concat(
+    ingInDb.extraUnits.map(function(eu) {
+      return eu["unit"];
+    })
+  );
   if (ingInDb.unit !== ing.unit) {
     extraUnit = ingInDb.extraUnits.find(el => el.unit === ing.unit);
     amountInDb = extraUnit.amount;
@@ -47,7 +58,8 @@ const updateIngredients = async ing => {
     name: ingInDb.name,
     price: Math.round((ingInDb.price * ing.amount) / amountInDb),
     unit: ing.unit,
-    amount: ing.amount
+    amount: ing.amount,
+    extraUnits
   };
 };
 
